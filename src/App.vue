@@ -2,7 +2,20 @@
   <div id="app">
     <div class="container">
       <!--Render Component-->
-      <Header title="Task App Tracker" />
+      <Header
+        @toggle-add-task="toggleAddTask"
+        title="Task App Tracker"
+        :showAddTask="showAddTask"
+      />
+      <div v-show="showAddTask">
+        <AddTask @add-task="addTask" />
+      </div>
+      <!--assign the emitted function to a method--->
+      <Tasks
+        @toggle-reminder="toggleReminder"
+        @delete-task="deleteTask"
+        :tasks="tasks"
+      />
 
       <!--Using Default Value-->
       <!-- <Header /> -->
@@ -14,12 +27,72 @@
 <script>
 //import components
 import Header from "./components/Header";
+import Tasks from "./components/Tasks";
+import AddTask from "./components/AddTask";
 
 //register components
 export default {
   name: "App",
   components: {
     Header,
+    Tasks,
+    AddTask,
+  },
+
+  data() {
+    return {
+      tasks: [],
+      showAddTask: false,
+    };
+  },
+
+  methods: {
+    toggleAddTask() {
+      //show add task form to whatever that is not (opposite)
+      this.showAddTask = !this.showAddTask;
+    },
+
+    addTask(task) {
+      this.tasks = [...this.tasks, task];
+    },
+
+    deleteTask(id) {
+      if (confirm("Are you sure you want to delete this data?")) {
+        this.tasks = this.tasks.filter((task) => task.id !== id);
+      }
+    },
+
+    toggleReminder(id) {
+      this.tasks = this.tasks.map((task) =>
+        //check if task.id is = to id if true then change the reminder to opposite of current task else if not match to id then not
+        task.id === id ? { ...task, reminder: !task.reminder } : task
+      );
+    },
+  },
+
+  created() {
+    this.tasks = [
+      {
+        id: 1,
+        text: "Doctors Appointment",
+        day: "March 1st at 2:30pm",
+        reminder: true,
+      },
+
+      {
+        id: 2,
+        text: "Meeting at School",
+        day: "March 3rd at 1:30pm",
+        reminder: true,
+      },
+
+      {
+        id: 3,
+        text: "Food Shopping",
+        day: "March 4th at 2:30pm",
+        reminder: false,
+      },
+    ];
   },
 };
 </script>
